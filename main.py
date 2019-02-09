@@ -1,14 +1,38 @@
-import discord, os, asyncpg, asyncio, random
+import discord, os, asyncpg, asyncio, random,logging
 from discord.ext import commands
 from include import config 
 from datetime import datetime
 import aqualink
 
 
+logging.basicConfig(
+	level = logging.DEBUG,
+	format="[%(asctime)s %(name)s/%(levelname)s]: %(message)s",
+	datefmt="%H:%M:%S",
+	handlers=[
+		logging.FileHandler("logs/main.log","w",encoding='UTF-8'),
+		logging.StreamHandler()
+		]
+)
+try:
+	logging.getLogger("discord.client").disabled = True
+	logging.getLogger("discord.http").disabled = True
+	logging.getLogger("discord.gateway").disabled = True
+	logging.getLogger("discord.state").disabled = True
+	logging.getLogger("asyncio").disabled = True
+	logging.getLogger("websockets.protocol").disabled = True
+	logging.getLogger("aioredis").disabled = True
+finally:
+	pass
+log = logging.getLogger("Community1.main")
+log.info("="*20 + "BOOT @ " + datetime.utcnow().strftime("%d/%m/%y %H:%M") + "="*30)
+
+
 class Community(commands.Bot):
 	def __init__(self):
 		super().__init__(command_prefix=config.prefix)
 		aqualink.Connection(self)
+		self.log = log
 		self.config = config
 		self.launch_time = datetime.utcnow()
 		self.startup_extensions = ['jishaku',
@@ -35,6 +59,7 @@ class Community(commands.Bot):
 										ws_url="ws://localhost:2333",
 										rest_url="http://localhost:2333"
 										)
+			self.log.info("AQUALINK LOADED!")
 		except Exception as er:
 			print(er)
 
@@ -49,12 +74,12 @@ class Community(commands.Bot):
 		except:
 			DBSTATUS = "FAILED LOADING DB"
 		await self.start_aqua()
-		print("+=========================+")
-		print("|Community Bot Is Online! |")
-		print("|-------------------------|")
-		print(f"|D.py Version {discord.__version__}")
-		print(f"|{self.loaded}/{len(self.startup_extensions)} Cogs Loaded!")
-		print("+=========================+")
+		self.log.info("+=========================+")
+		self.log.info("|Community Bot Is Online! |")
+		self.log.info("|-------------------------|")
+		self.log.info(f"|D.py Version {discord.__version__}")
+		self.log.info(f"|{self.loaded}/{len(self.startup_extensions)} Cogs Loaded!")
+		self.log.info("+=========================+")
 		self.loop.create_task(self.presence())
 		await self.get_channel(540291689374285825).send(f"`Bot is online with {self.loaded}/{len(self.startup_extensions)} modules loaded`")
 
@@ -68,7 +93,7 @@ class Community(commands.Bot):
 						f"?help",
 						f"{len(self.guilds)} Servers",
 						f"{len(self.users)} users",
-						f"MOTD: SAT 2PM EST",
+						# f"CAH 8TH FEB",
 						f"{len(self.commands)} Commands"
                         )
 
@@ -77,7 +102,6 @@ class Community(commands.Bot):
 				),
 			)
 			await asyncio.sleep(45)
-
 
 	def run(self):
 		loaded =0
