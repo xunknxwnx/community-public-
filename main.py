@@ -25,7 +25,7 @@ try:
 finally:
 	pass
 log = logging.getLogger("Community1.main")
-log.info("="*20 + "BOOT @ " + datetime.utcnow().strftime("%d/%m/%y %H:%M") + "="*30)
+log.info("booted")
 
 
 class Community(commands.Bot):
